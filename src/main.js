@@ -6,6 +6,8 @@ import router from './router'
 import Store from './store'
 import axios from 'axios'
 import ElementUI from 'element-ui' //element-ui的全部组件
+import 'element-ui/lib/theme-chalk/index.css'
+
 Vue.use(ElementUI) //使用elementUI
 
 Vue.prototype.axios = axios

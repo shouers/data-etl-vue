@@ -7,6 +7,9 @@ import Users from '../components/user/Users.vue'
 import Menus from '../components/menu/Menus.vue'
 import NotPermission from '../components/401.vue'
 import Icons from '../components/doc/Icons.vue'
+import Manage from '../components/user/manage.vue'
+import Count from '../components/user/count.vue'
+import Taxation from '../components/user/taxation.vue'
 
 Vue.use(VueRouter)
 
@@ -21,10 +24,26 @@ const routes = [
     component: Login
   },
   {
-    path: '/home',
+    path: '/user',
     component: Home,
-    meta:{title: '首页'},
+    redirect: '/user/manage',
+    name: 'user',
+    meta:{ title: '数据管理', icon: 'el-icon-s-help' },
     children: [
+        {
+          path: 'manage',
+          component: Manage
+        },
+        {
+          path: '/taxation',
+          component: Taxation,
+          meta:{title: '税务数据'},
+        },
+        {
+          path: '/count',
+          component: Count,
+          meta:{title: '统计数据'},
+        },
         {
           path: '/welcome',
           component: Welcome
@@ -50,6 +69,7 @@ const routes = [
         }
     ]
   },
+
 ]
 
 const router = new VueRouter({

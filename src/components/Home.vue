@@ -65,7 +65,7 @@
        加载菜单数据
        */
       async getMenuList() {
-        const { data: res } = await this.axios.get("user/findMenu");
+        const { data: res } = await this.axios.get("user/findMenu?type=0");
         if (res.code !== 200)
           return this.$message.error("获取菜单失败:" + res.msg);
         this.menuList = res.data;

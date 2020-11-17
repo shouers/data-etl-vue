@@ -71,7 +71,7 @@
                     password: this.loginForm.password
                 })
                     .then(() => {
-                        this.$router.push('/home')
+                        this.$router.push('/user')
                         this.loading = false
                     })
                     .catch((res) => {
