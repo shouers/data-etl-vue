@@ -14,7 +14,7 @@
       </div>
     </el-header>
     <!--主体-->
-    <el-container style="height: 500px;">
+    <el-container style="height: 100%;">
       <!--菜单-->
       <el-aside :width="isOpen==true?'64px':'200px'">
         <div class="toggle-btn" @click="toggleMenu">|||</div>

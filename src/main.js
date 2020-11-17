@@ -5,6 +5,9 @@ import App from './App'
 import router from './router'
 import Store from './store'
 import axios from 'axios'
+
+import 'normalize.css/normalize.css' // A modern alternative to CSS resets
+
 import ElementUI from 'element-ui' //element-ui的全部组件
 import 'element-ui/lib/theme-chalk/index.css'
 

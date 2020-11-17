@@ -3,21 +3,21 @@
     <h1>税务数据</h1>
     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
       <el-form-item>
-        <el-input v-model="searchForm.user" placeholder="选择导入月份" />
+        <el-date-picker v-model="searchForm.searchDt" type="month" value-format="yyyyMM" placeholder="选择导入月份"/>
       </el-form-item>
       <el-form-item>
-        <el-select v-model="searchForm.region" placeholder="选择导入税种">
+        <el-select v-model="searchForm.taxType" placeholder="选择导入税种">
           <el-option label="不限" value="0" />
           <el-option label="增值税" value="1" />
           <el-option label="所得税" value="2" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">查询</el-button>
-        <el-button type="primary">重置</el-button>
-        <el-button type="primary">导入</el-button>
-        <el-button type="primary">导出</el-button>
-        <el-button type="primary">执行</el-button>
+        <el-button type="primary" size="medium" @click="searchTaxation">查询</el-button>
+        <el-button type="primary" size="medium" @click="clearTaxation">重置</el-button>
+        <el-button type="primary" size="medium" @click="uploadTaxation">导入</el-button>
+        <el-button type="primary" size="medium" @click="downloadTaxation">导出</el-button>
+        <el-button type="primary" size="medium" @click="doTaxation">执行</el-button>
       </el-form-item>
     </el-form>
     <el-row :gutter="20" class="taxContent">
@@ -63,7 +63,7 @@
           </p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item>
-              <el-input v-model="searchForm.user" placeholder="输入楼宇名称" size="mini" />
+              <el-input v-model="searchForm.houseName" placeholder="输入楼宇名称" size="mini" />
             </el-form-item>
           </el-form>
           <el-table
@@ -94,15 +94,15 @@
           </p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item>
-              <el-input v-model="searchForm.user" placeholder="请选择年/月" size="mini" />
+              <el-date-picker v-model="searchForm.businessDt" type="month" value-format="yyyyMM" placeholder="请选择年/月" size="mini" />
             </el-form-item>
             <el-form-item>
-              <el-select v-model="searchForm.region" placeholder="选择导入税种" size="mini">
-                <el-option label="按月度纳税额排序" value="beijing" />
-                <el-option label="按环比纳税额排序" value="beijing" />
-                <el-option label="按环比增长排序" value="beijing" />
-                <el-option label="按环比增加20%的企业名单" value="beijing" />
-                <el-option label="按环比减少20%的企业名单" value="beijing" />
+              <el-select v-model="searchForm.taxSort" placeholder="请选择排序" size="mini">
+                <el-option label="按月度纳税额排序" value="monthTax" />
+                <el-option label="按环比纳税额排序" value="chainTax" />
+                <el-option label="按环比增长排序" value="chainInc" />
+                <el-option label="按环比增加20%的企业名单" value="chainInc20" />
+                <el-option label="按环比减少20%的企业名单" value="chainDec20" />
               </el-select>
             </el-form-item>
           </el-form>
@@ -131,14 +131,54 @@
         </div>
       </el-col>
     </el-row>
+
+    <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogAddFile" width="500px" style="padding:0;" @close="resetUpload">
+      上传文件:
+      <el-upload
+        class="upload-demo"
+        ref="upload"
+        action="doUpload"
+        :limit="1"
+        :file-list="fileList"
+        :before-upload="beforeUpload">
+        <el-date-picker v-model="searchForm.uploadDt" type="month" value-format="yyyyMM" placeholder="请选择年/月" size="mini" />
+        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+        <a href="./demo.xlsx" rel="external nofollow" download="模板"><el-button size="small" type="success">下载模板</el-button></a>
+        <div slot="tip" class="el-upload__tip">注意: 只能上传excel文件</div>
+        <div slot="tip" class="el-upload-list__item-name">{{fileName}}</div>
+      </el-upload>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddFile = false">取消</el-button>
+        <el-button type="primary" @click="submitAddFile()">确定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+  import FileSaver from 'file-saver'
+  import XLSX from 'xlsx'
+
   export default {
     data() {
       return {
-        searchForm: {},
+        dialogAddFile: false,
+        dialogStatus: '',
+        titleMap: {
+          uploadTaxation: "上传税务数据"
+        },
+        fileList: [],
+        fileName: '',
+        files: '',
+
+        searchForm: {
+          searchDt: '',
+          uploadDt: '',
+          businessDt: '',
+          taxType: '0',
+          houseName: '',
+          taxSort: 'monthTax',
+        },
         count: 18512,
         tableData: []
       }
@@ -161,7 +201,94 @@
         name: '王小虎',
         address: '上海市普陀区金沙江路 1516 弄'
       }]
+    },
+    created() {
+
+    },
+    methods: {
+      searchTaxation() {
+        this.getTaxation();
+      },
+
+      getTaxation() {
+
+      },
+
+      clearTaxation() {
+        let _this = this;
+        _this.searchForm.searchDt = '';
+        _this.searchForm.taxType = '0';
+      },
+
+      uploadTaxation() {
+        let _this = this;
+        _this.dialogAddFile = true;
+        _this.dialogStatus = "uploadTaxation";
+      },
+
+      beforeUpload(file){
+        console.log(file,'文件');
+        this.files = file;
+        const extension = file.name.split('.')[1] === 'xls'
+        const extension2 = file.name.split('.')[1] === 'xlsx'
+        // const isLt2M = file.size / 1024 / 1024 < 5
+        if (!extension && !extension2) {
+          this.$message.warning('上传模板只能是 xls、xlsx 格式!');
+          return false;
+        }
+        // if (!isLt2M) {
+        //   this.$message.warning('上传模板大小不能超过 5MB!');
+        //   return false;
+        // }
+        this.fileName = file.name;
+        return false; // 返回false不会自动上传
+      },
+
+      submitAddFile() {
+        console.log('上传 ' + this.files.name)
+        if(this.fileName == ""){
+          this.$message.warning('请选择要上传的文件！')
+          return false;
+        }
+        let fileFormData = new FormData();
+        fileFormData.append('file', this.files, this.fileName);// filename是键，file是值，就是要传的文件，test.zip是要传的文件名
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+        }
+        this.axios.post('taxation/uploadTaxation', fileFormData, requestConfig).then((res) => {
+          if (res.status === 200) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500,
+              onClose: () => {
+                this.dialogAddFile = false;
+                this.$emit('getTaxation');
+              }
+            })
+          } else {
+            this.$message.error(res.data.data.msg)
+          }
+        })
+      },
+
+      resetUpload() {
+        let _this = this;
+        _this.dialogAddFile = false;
+      },
+
+      downloadTaxation() {
+
+      },
+
+      doTaxation() {
+
+      },
+
     }
+
   }
 </script>
 
