@@ -3,7 +3,7 @@
     <h1>税务数据</h1>
     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
       <el-form-item>
-        <el-date-picker v-model="searchForm.searchDt" type="month" value-format="yyyyMM" placeholder="选择导入月份"/>
+        <el-date-picker v-model="searchForm.searchDt" type="month" value-format="yyyy-MM" placeholder="选择导入月份"/>
       </el-form-item>
       <el-form-item>
         <el-select v-model="searchForm.taxType" placeholder="选择导入税种">
@@ -23,61 +23,35 @@
     <el-row :gutter="20" class="taxContent">
       <el-col :span="10">
         <div class="content" style="margin-bottom: 10px;">
-          <p class="title">
-            全区月度纳税总额
-          </p>
+          <p class="title">全区月度纳税总额</p>
           <p style="color: red;text-align: center;">
-            <span style="font-size: 32px;">{{ count }}</span>
-            万元
+            <span style="font-size: 32px;">{{ count }}</span>万元
           </p>
         </div>
         <div class="content">
-          <p class="title">
-            功能区各高精尖行业纳税总额
-          </p>
-          <el-table
-            :data="tableData"
-            style="width: 100%"
-          >
+          <p class="title">功能区各高精尖行业纳税总额</p>
+          <el-table :data="parkTypeSumTaxData" style="width: 100%">
+            <el-table-column prop="businessPark" label="功能区" width="130" fixed/>
             <el-table-column
-              prop="date"
-              label="日期"
-            />
-            <el-table-column
-              prop="name"
-              label="姓名"
-            />
-            <el-table-column
-              prop="address"
-              label="地址"
-            />
+              v-for="(item, index) in businessTypeList"
+              :prop="type + index" :key="item" :label="item" >
+            </el-table-column>
           </el-table>
         </div>
-
       </el-col>
 
       <el-col :span="4">
         <div class="content">
-          <p class="title">
-            各商务楼宇月度纳税总额
-          </p>
+          <p class="title">各商务楼宇月度纳税总额</p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item>
               <el-input v-model="searchForm.houseName" placeholder="输入楼宇名称" size="mini" />
             </el-form-item>
           </el-form>
-          <el-table
-            :data="tableData"
-            style="width: 100%"
-          >
-            <el-table-column
-              prop="date"
-              label="日期"
-            />
-            <el-table-column
-              prop="name"
-              label="姓名"
-            />
+          <el-table :data="houseSumTaxData" style="width: 100%">
+            <el-table-column prop="businessHouse" label="企业所属楼宇" width="130" fixed/>
+            <el-table-column prop="sumTax" label="纳税总额" width="160" fixed/>
+            <el-table-column prop="dtTax" label="纳税月" width="130"/>
           </el-table>
           <el-pagination
             small
@@ -89,12 +63,10 @@
 
       <el-col :span="10">
         <div class="content" style="position: relative;">
-          <p class="title">
-            企业月度纳税总额
-          </p>
+          <p class="title">企业月度纳税总额</p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item>
-              <el-date-picker v-model="searchForm.businessDt" type="month" value-format="yyyyMM" placeholder="请选择年/月" size="mini" />
+              <el-date-picker v-model="searchForm.businessDt" type="month" value-format="yyyy-MM" placeholder="请选择年/月" size="mini" />
             </el-form-item>
             <el-form-item>
               <el-select v-model="searchForm.taxSort" placeholder="请选择排序" size="mini">
@@ -106,22 +78,9 @@
               </el-select>
             </el-form-item>
           </el-form>
-          <el-table
-            :data="tableData"
-            style="width: 100%"
-          >
-            <el-table-column
-              prop="date"
-              label="日期"
-            />
-            <el-table-column
-              prop="name"
-              label="姓名"
-            />
-            <el-table-column
-              prop="address"
-              label="地址"
-            />
+          <el-table :data="businessSumTaxData" style="width: 100%">
+            <el-table-column prop="businessName" label="企业名称" width="130" fixed/>
+            <el-table-column prop="chainTax" label="纳税总额环比" width="160" fixed/>
           </el-table>
           <el-pagination
             small
@@ -141,7 +100,7 @@
         :limit="1"
         :file-list="fileList"
         :before-upload="beforeUpload">
-        <el-date-picker v-model="searchForm.uploadDt" type="month" value-format="yyyyMM" placeholder="请选择年/月" size="mini" />
+        <el-date-picker v-model="searchForm.uploadDt" type="month" value-format="yyyy-MM" placeholder="请选择年/月" size="mini" />
         <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
         <a href="./demo.xlsx" rel="external nofollow" download="模板"><el-button size="small" type="success">下载模板</el-button></a>
         <div slot="tip" class="el-upload__tip">注意: 只能上传excel文件</div>
@@ -180,6 +139,11 @@
           taxSort: 'monthTax',
         },
         count: 18512,
+        type: 'type',
+        businessTypeList: [],
+        parkTypeSumTaxData: [],
+        houseSumTaxData: [],
+        businessSumTaxData: [],
         tableData: []
       }
     },
@@ -203,15 +167,81 @@
       }]
     },
     created() {
-
+      this.getBusinessTypeList();
     },
     methods: {
+      getBusinessTypeList() {
+        let _this = this;
+        _this.axios.post('taxation/getBusinessTypeList').then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+            _this.businessTypeList = res.data.data;
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
+      },
+
       searchTaxation() {
         this.getTaxation();
       },
 
       getTaxation() {
+        let _this = this;
+        _this.getParkTypeSumTaxData();
+        _this.getHouseSumTaxData();
+        _this.getBusinessSumTaxData();
+      },
 
+      getParkTypeSumTaxData() {
+        let _this = this;
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }
+        _this.axios.post('taxation/getParkTypeSumTaxData', _this.searchForm, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+            _this.parkTypeSumTaxData = res.data.data;
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
+      },
+
+      getHouseSumTaxData() {
+        let _this = this;
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }
+        _this.axios.post('taxation/getHouseSumTaxData', _this.searchForm, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+            _this.houseSumTaxData = res.data.data;
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
+      },
+
+      getBusinessSumTaxData() {
+        let _this = this;
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }
+        _this.axios.post('taxation/getBusinessSumTaxData', _this.searchForm, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+            _this.businessSumTaxData = res.data.data;
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
       },
 
       clearTaxation() {
@@ -246,12 +276,17 @@
 
       submitAddFile() {
         console.log('上传 ' + this.files.name)
-        if(this.fileName == ""){
+        if (this.fileName == "") {
           this.$message.warning('请选择要上传的文件！')
+          return false;
+        }
+        if (this.searchForm.uploadDt == "") {
+          this.$message.warning('请选择要上传的月份！')
           return false;
         }
         let fileFormData = new FormData();
         fileFormData.append('file', this.files, this.fileName);// filename是键，file是值，就是要传的文件，test.zip是要传的文件名
+        fileFormData.append('dt', this.searchForm.uploadDt);
         let requestConfig = {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -284,7 +319,21 @@
       },
 
       doTaxation() {
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+        }
 
+        let _this = this;
+        let dtTax = _this.searchForm.searchDt;
+        _this.axios.post('taxation/doTaxation?dtTax='+dtTax, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
       },
 
     }
