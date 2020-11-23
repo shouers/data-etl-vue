@@ -65,10 +65,10 @@
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item>
               <el-select v-model="searchForm.countSort" placeholder="请选择排序" size="mini">
-                <el-option label="按收入总额排序" value="income" />
+                <el-option label="按收入总额排序" value="sumIncome" />
                 <el-option label="按环比收入排序" value="chainIncome" />
                 <el-option label="按环比收入增长排序" value="chainIncomeInc" />
-                <el-option label="按利润总额排序" value="profit" />
+                <el-option label="按利润总额排序" value="sumProfit" />
                 <el-option label="按环比利润排序" value="chainProfit" />
                 <el-option label="按环比利润增长排序" value="chainProfitInc" />
                 <el-option label="按环比增加20%的企业名单" value="chainInc20" />
@@ -85,6 +85,7 @@
           <el-table :data="businessSumIncProData" style="width: 100%">
             <el-table-column prop="businessName" label="企业名称" width="130" fixed/>
             <el-table-column prop="chainIncome" label="环比收入变化" width="160" fixed/>
+            <el-table-column prop="chainProfit" label="环比利润变化" width="160" fixed/>
           </el-table>
           <el-pagination
             small
@@ -159,7 +160,7 @@
         searchForm: {
           searchDt: '',
           uploadDt: '',
-          countSort: 'income',
+          countSort: 'sumIncome',
           countType: 'income',
         },
         count: 18512,
