@@ -18,37 +18,33 @@
         <div class="content" style="margin-bottom: 10px;">
           <p class="title">全区月度收入总额</p>
           <p style="color: red;text-align: center;">
-            <span style="font-size: 32px;">{{ count }}</span>万元
+            <span style="font-size: 32px;">{{ incomeCount }}</span>万元
           </p>
         </div>
         <div class="content" style="margin-bottom: 10px;">
           <p class="title">全区月度利润总额</p>
           <p style="color: red;text-align: center;">
-            <span style="font-size: 32px;">{{ count }}</span>万元
+            <span style="font-size: 32px;">{{ profitCount }}</span>万元
           </p>
         </div>
         <div class="content">
           <p class="title">各高精尖产业月度收入及利润总额</p>
-          <el-table :data="typeSumIncProData" style="width: 100%">
-            <el-table-column prop="businessType" label="产业区" width="130" fixed/>
-            <el-table-column prop="sumIncome" label="收入总额" width="130" fixed/>
-            <el-table-column prop="sumProfit" label="利润总额" width="130" fixed/>
+          <el-table :data="typeSumIncProData" style="width: 100%" id="typeSumIncProData-table">
+            <el-table-column prop="businessType" label="产业区" width="130"/>
+            <el-table-column prop="sumIncome" label="收入总额" width="130"/>
+            <el-table-column prop="sumProfit" label="利润总额" width="130"/>
             <el-table-column prop="dtCount" label="月份" width="130"/>
-            <el-table-column
-              v-for="(item, index) in businessTypeList"
-              :prop="type + index" :key="item" :label="item" >
-            </el-table-column>
           </el-table>
         </div>
       </el-col>
 
-      <el-col :span="4">
+      <el-col :span="14">
         <div class="content">
           <p class="title">各功能区月度收入及利润总额</p>
-          <el-table :data="parkSumIncProData" style="width: 100%">
-            <el-table-column prop="businessPark" label="功能区" width="130" fixed/>
-            <el-table-column prop="sumIncome" label="收入总额" width="130" fixed/>
-            <el-table-column prop="sumProfit" label="利润总额" width="130" fixed/>
+          <el-table :data="parkSumIncProData" style="width: 100%" id="parkSumIncProData-table">
+            <el-table-column prop="businessPark" label="功能区" width="160"/>
+            <el-table-column prop="sumIncome" label="收入总额" width="160"/>
+            <el-table-column prop="sumProfit" label="利润总额" width="160"/>
             <el-table-column prop="dtCount" label="月份" width="130"/>
           </el-table>
           <el-pagination
@@ -59,7 +55,7 @@
         </div>
       </el-col>
 
-      <el-col :span="10">
+      <el-col :span="8">
         <div class="content" style="position: relative;">
           <p class="title">企业月度企业收入/利润总额</p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -82,10 +78,10 @@
               </el-select>
             </el-form-item>
           </el-form>
-          <el-table :data="businessSumIncProData" style="width: 100%">
-            <el-table-column prop="businessName" label="企业名称" width="130" fixed/>
-            <el-table-column prop="chainIncome" label="环比收入变化" width="160" fixed/>
-            <el-table-column prop="chainProfit" label="环比利润变化" width="160" fixed/>
+          <el-table :data="businessSumIncProData" style="width: 100%" id="businessSumIncProData-table">
+            <el-table-column prop="businessName" label="企业名称" width="130"/>
+            <el-table-column prop="chainIncome" label="环比收入变化" width="160"/>
+            <el-table-column prop="chainProfit" label="环比利润变化" width="160"/>
           </el-table>
           <el-pagination
             small
@@ -95,7 +91,7 @@
         </div>
       </el-col>
 
-      <el-col :span="4">
+      <el-col :span="6">
         <div class="content">
           <p class="title">各楼宇月度收入总额</p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -103,10 +99,11 @@
               <el-input v-model="searchForm.houseName" placeholder="输入楼宇名称" size="mini" />
             </el-form-item>
           </el-form>
-          <el-table :data="houseSumIncProData" style="width: 100%">
-            <el-table-column prop="businessHouse" label="企业所属楼宇" width="130" fixed/>
-            <el-table-column prop="sumTax" label="纳税总额" width="160" fixed/>
-            <el-table-column prop="dtTax" label="纳税月" width="130"/>
+          <el-table :data="houseSumIncProData" style="width: 100%" id="houseSumIncProData-table">
+            <el-table-column prop="businessHouse" label="企业所属楼宇" width="110"/>
+            <el-table-column prop="sumIncome" label="收入总额" width="90"/>
+            <el-table-column prop="sumProfit" label="利润总额" width="90"/>
+            <el-table-column prop="dtCount" label="月份" width="90"/>
           </el-table>
           <el-pagination
             small
@@ -163,6 +160,8 @@
           countSort: 'sumIncome',
           countType: 'income',
         },
+        incomeCount: 0,
+        profitCount: 0,
         count: 18512,
         businessTypeList: [],
         typeSumIncProData: [],
@@ -213,10 +212,29 @@
 
       getCount() {
         let _this = this;
+        _this.getIncomeProfitCount();
         _this.getTypeSumIncProData();
         _this.getParkSumIncProData();
         _this.getBusinessSumIncProData();
         _this.getHouseSumIncProData();
+      },
+
+      getIncomeProfitCount() {
+        let _this = this;
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }
+        _this.axios.post('count/getIncomeProfitCount', _this.searchForm, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+            _this.incomeCount = res.data.data[0];
+            _this.profitCount = res.data.data[1];
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
       },
 
       getTypeSumIncProData() {
@@ -357,7 +375,37 @@
       },
 
       downloadCount() {
+        var workbook = XLSX.utils.book_new();
 
+        /* convert table 'table1' to worksheet named "Sheet1" */
+        var ws1 = XLSX.utils.table_to_sheet(document.querySelector('#typeSumIncProData-table'));
+        XLSX.utils.book_append_sheet(workbook, ws1, "各高精尖产业月度收入及利润总额");
+
+        /* convert table 'table2' to worksheet named "Sheet2" */
+        var ws2 = XLSX.utils.table_to_sheet(document.querySelector('#parkSumIncProData-table'));
+        XLSX.utils.book_append_sheet(workbook, ws2, "各功能区月度收入及利润总额");
+
+        var ws3 = XLSX.utils.table_to_sheet(document.querySelector('#businessSumIncProData-table'));
+        XLSX.utils.book_append_sheet(workbook, ws3, "企业月度企业收入&利润总额");
+
+        var ws4 = XLSX.utils.table_to_sheet(document.querySelector('#houseSumIncProData-table'));
+        XLSX.utils.book_append_sheet(workbook, ws4, "各楼宇月度收入总额");
+
+        /* get binary string as output */
+        var wbOut = XLSX.write(workbook, {
+          bookType: "xlsx",
+          bookSST: true,
+          type: "array"
+        });
+        try {
+          FileSaver.saveAs(
+            new Blob([wbOut], { type: "application/octet-stream" }),
+            "统计数据.xlsx"
+          );
+        } catch (e) {
+          if (typeof console !== "undefined") console.log(e, wbOut);
+        }
+        return wbOut;
       },
 
       doCount() {
