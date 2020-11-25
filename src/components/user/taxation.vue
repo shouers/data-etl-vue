@@ -3,7 +3,7 @@
     <h1>税务数据</h1>
     <el-form :inline="true" :model="searchForm" class="demo-form-inline">
       <el-form-item>
-        <el-date-picker v-model="searchForm.searchDt" type="month" value-format="yyyy-MM" placeholder="选择导入月份"/>
+        <el-date-picker v-model="searchForm.searchDt" type="month" value-format="yyyy-MM" placeholder="选择查询月份"/>
       </el-form-item>
       <el-form-item>
         <el-select v-model="searchForm.taxType" placeholder="选择导入税种">
