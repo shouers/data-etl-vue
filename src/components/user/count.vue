@@ -7,114 +7,18 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="medium" @click="searchCount">查询</el-button>
-        <el-button type="primary" size="medium" @click="clearCount">重置</el-button>
         <el-button type="primary" size="medium" @click="uploadCount">导入</el-button>
         <el-button type="primary" size="medium" @click="downloadCount">导出</el-button>
-        <el-button type="primary" size="medium" @click="doCount">执行</el-button>
       </el-form-item>
     </el-form>
-    <el-row :gutter="20" class="taxContent">
-      <el-col :span="12">
-        <div class="content" style="margin-bottom: 10px;">
-          <p class="title">全区月度收入总额</p>
-          <p style="color: red;text-align: center; padding: 0; line-height: 20px;">
-            <span style="font-size: 32px;">{{ incomeCount }}</span>万元
-          </p>
-        </div>
-        <div class="content" style="margin-bottom: 10px;">
-          <p class="title">全区月度利润总额</p>
-          <p style="color: red;text-align: center; padding: 0; line-height: 20px;">
-            <span style="font-size: 32px;">{{ profitCount }}</span>万元
-          </p>
-        </div>
-        <div class="content">
-          <p class="title">各高精尖产业月度收入及利润总额</p>
-          <el-table :data="typeSumIncProData" style="width: 100%" id="typeSumIncProData-table">
-            <el-table-column prop="businessType" label="产业区" width="180"/>
-            <el-table-column prop="sumIncome" label="收入总额" width="140"/>
-            <el-table-column prop="sumProfit" label="利润总额" width="140"/>
-            <el-table-column prop="dtCount" label="月份" width="130"/>
-          </el-table>
-        </div>
-      </el-col>
 
-      <el-col :span="12">
-        <div class="content1">
-          <p class="title">各功能区月度收入及利润总额</p>
-          <el-table :data="parkSumIncProData" style="width: 100%" id="parkSumIncProData-table">
-            <el-table-column prop="businessPark" label="功能区" width="180"/>
-            <el-table-column prop="sumIncome" label="收入总额" width="150"/>
-            <el-table-column prop="sumProfit" label="利润总额" width="150"/>
-            <el-table-column prop="dtCount" label="月份" width="130"/>
-          </el-table>
-          <el-pagination
-            small
-            layout="prev, pager, next"
-            :total="50"
-          />
-        </div>
-      </el-col>
-
-      <el-col :span="12">
-        <div class="content" style="position: relative;">
-          <p class="title">企业月度企业收入/利润总额</p>
-          <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-            <el-form-item>
-              <el-select v-model="searchForm.countSort" placeholder="请选择排序" size="mini">
-                <el-option label="按收入总额排序" value="sumIncome" />
-                <el-option label="按环比收入排序" value="chainIncome" />
-                <el-option label="按环比收入增长排序" value="chainIncomeInc" />
-                <el-option label="按利润总额排序" value="sumProfit" />
-                <el-option label="按环比利润排序" value="chainProfit" />
-                <el-option label="按环比利润增长排序" value="chainProfitInc" />
-                <el-option label="按环比增加20%的企业名单" value="chainInc20" />
-                <el-option label="按环比减少20%的企业名单" value="chainDec20" />
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-select v-model="searchForm.countType" placeholder="请选择类型" size="mini">
-                <el-option label="收入" value="income" />
-                <el-option label="利润" value="profit" />
-              </el-select>
-            </el-form-item>
-          </el-form>
-          <el-table :data="businessSumIncProData" style="width: 100%" id="businessSumIncProData-table">
-            <el-table-column prop="businessName" label="企业名称" width="160"/>
-            <el-table-column prop="chainIncome" label="环比收入变化" width="160"/>
-            <el-table-column prop="chainProfit" label="环比利润变化" width="160"/>
-            <el-table-column prop="dtCount" label="月份" width="130"/>
-          </el-table>
-          <el-pagination
-            small
-            layout="prev, pager, next"
-            :total="50"
-          />
-        </div>
-      </el-col>
-
-      <el-col :span="12">
-        <div class="content">
-          <p class="title">各楼宇月度收入总额</p>
-          <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-            <el-form-item>
-              <el-input v-model="searchForm.houseName" placeholder="输入楼宇名称" size="mini" />
-            </el-form-item>
-          </el-form>
-          <el-table :data="houseSumIncProData" style="width: 100%" id="houseSumIncProData-table">
-            <el-table-column prop="businessHouse" label="企业所属楼宇" width="180"/>
-            <el-table-column prop="sumIncome" label="收入总额" width="150"/>
-            <el-table-column prop="sumProfit" label="利润总额" width="150"/>
-            <el-table-column prop="dtCount" label="月份" width="130"/>
-          </el-table>
-          <el-pagination
-            small
-            layout="prev, pager, next"
-            :total="50"
-          />
-        </div>
-      </el-col>
-
-    </el-row>
+    <div class="content">
+      <el-table :data="tableData" style="width: 100%" id="typeSumIncProData-table">
+        <el-table-column prop="date" label="功能区" width="260"/>
+        <el-table-column prop="name" label="功能区" width="260"/>
+        <el-table-column prop="address" label="功能区" width="130"/>
+      </el-table>
+    </div>
 
     <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogAddFile" width="500px" style="padding:0;" @close="resetUpload">
       上传文件:
@@ -158,17 +62,7 @@
         searchForm: {
           searchDt: '',
           uploadDt: '',
-          countSort: 'sumIncome',
-          countType: 'income',
         },
-        incomeCount: 0,
-        profitCount: 0,
-        count: 18512,
-        businessTypeList: [],
-        typeSumIncProData: [],
-        parkSumIncProData: [],
-        businessSumIncProData: [],
-        houseSumIncProData: [],
         tableData: []
       }
     },
@@ -192,21 +86,8 @@
       }]
     },
     created() {
-      this.getBusinessTypeList();
     },
     methods: {
-      getBusinessTypeList() {
-        let _this = this;
-        _this.axios.post('count/getBusinessTypeList').then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.businessTypeList = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
       searchCount() {
         this.getCount();
       },
@@ -214,10 +95,6 @@
       getCount() {
         let _this = this;
         _this.getIncomeProfitCount();
-        _this.getTypeSumIncProData();
-        _this.getParkSumIncProData();
-        _this.getBusinessSumIncProData();
-        _this.getHouseSumIncProData();
       },
 
       getIncomeProfitCount() {
@@ -236,79 +113,6 @@
             _this.$message.error(res.data.data.msg)
           }
         })
-      },
-
-      getTypeSumIncProData() {
-        let _this = this;
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-        _this.axios.post('count/getTypeSumIncProData', _this.searchForm, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.typeSumIncProData = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
-      getParkSumIncProData() {
-        let _this = this;
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-        _this.axios.post('count/getParkSumIncProData', _this.searchForm, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.parkSumIncProData = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
-      getBusinessSumIncProData() {
-        let _this = this;
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-        _this.axios.post('count/getBusinessSumIncProData', _this.searchForm, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.businessSumIncProData = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
-      getHouseSumIncProData() {
-        let _this = this;
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-        _this.axios.post('count/getHouseSumIncProData', _this.searchForm, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.houseSumIncProData = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
-      clearCount() {
-        let _this = this;
-        _this.searchForm.searchDt = '';
       },
 
       uploadCount() {
@@ -382,16 +186,6 @@
         var ws1 = XLSX.utils.table_to_sheet(document.querySelector('#typeSumIncProData-table'));
         XLSX.utils.book_append_sheet(workbook, ws1, "各高精尖产业月度收入及利润总额");
 
-        /* convert table 'table2' to worksheet named "Sheet2" */
-        var ws2 = XLSX.utils.table_to_sheet(document.querySelector('#parkSumIncProData-table'));
-        XLSX.utils.book_append_sheet(workbook, ws2, "各功能区月度收入及利润总额");
-
-        var ws3 = XLSX.utils.table_to_sheet(document.querySelector('#businessSumIncProData-table'));
-        XLSX.utils.book_append_sheet(workbook, ws3, "企业月度企业收入&利润总额");
-
-        var ws4 = XLSX.utils.table_to_sheet(document.querySelector('#houseSumIncProData-table'));
-        XLSX.utils.book_append_sheet(workbook, ws4, "各楼宇月度收入总额");
-
         /* get binary string as output */
         var wbOut = XLSX.write(workbook, {
           bookType: "xlsx",
@@ -407,24 +201,6 @@
           if (typeof console !== "undefined") console.log(e, wbOut);
         }
         return wbOut;
-      },
-
-      doCount() {
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-        }
-
-        let _this = this;
-        let dtCount = _this.searchForm.searchDt;
-        _this.axios.post('count/doCount?dtCount='+dtCount, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
       },
 
     }

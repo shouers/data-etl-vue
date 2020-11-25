@@ -6,90 +6,19 @@
         <el-date-picker v-model="searchForm.searchDt" type="month" value-format="yyyy-MM" placeholder="选择查询月份"/>
       </el-form-item>
       <el-form-item>
-        <el-select v-model="searchForm.taxType" placeholder="选择导入税种">
-          <el-option label="增值税" value="add" />
-          <el-option label="所得税" value="income" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
         <el-button type="primary" size="medium" @click="searchTaxation">查询</el-button>
-        <el-button type="primary" size="medium" @click="clearTaxation">重置</el-button>
         <el-button type="primary" size="medium" @click="uploadTaxation">导入</el-button>
         <el-button type="primary" size="medium" @click="downloadTaxation">导出</el-button>
-        <el-button type="primary" size="medium" @click="doTaxation">执行</el-button>
       </el-form-item>
     </el-form>
-    <el-row :gutter="20" class="taxContent">
-      <el-col :span="10">
-        <div class="content" style="margin-bottom: 10px; height: 160px">
-          <p class="title">全区月度纳税总额</p>
-          <p style="color: red;text-align: center; padding: 0; line-height: 20px;">
-            <span style="font-size: 30px;">{{ taxCount }}</span>万元
-          </p>
-        </div>
-        <div class="content">
-          <p class="title">功能区各高精尖行业纳税总额</p>
-          <el-table :data="parkTypeSumTaxData" show-summary style="width: 100%" id="parkTypeSumTaxData-table">
-            <el-table-column prop="businessPark" label="功能区" width="130"/>
-            <el-table-column
-              v-for="(item, index) in businessTypeList"
-              :prop="type + index" :key="item" :label="item" >
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-col>
 
-      <el-col :span="5">
-        <div class="content">
-          <p class="title">各商务楼宇月度纳税总额</p>
-          <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-            <el-form-item>
-              <el-input v-model="searchForm.houseName" placeholder="输入楼宇名称" size="mini" />
-            </el-form-item>
-          </el-form>
-          <el-table :data="houseSumTaxData" style="width: 100%" id="houseSumTaxData-table">
-            <el-table-column prop="businessHouse" label="企业所属楼宇" width="130"/>
-            <el-table-column prop="sumTax" label="纳税总额" width="160"/>
-            <el-table-column prop="dtTax" label="纳税月" width="130"/>
-          </el-table>
-          <el-pagination
-            small
-            layout="prev, pager, next"
-            :total="50"
-          />
-        </div>
-      </el-col>
-
-      <el-col :span="9">
-        <div class="content" style="position: relative;">
-          <p class="title">企业月度纳税总额</p>
-          <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-            <el-form-item>
-              <el-date-picker v-model="searchForm.businessDt" type="month" value-format="yyyy-MM" placeholder="请选择年/月" size="mini" />
-            </el-form-item>
-            <el-form-item>
-              <el-select v-model="searchForm.taxSort" placeholder="请选择排序" size="mini">
-                <el-option label="按月度纳税额排序" value="monthTax" />
-                <el-option label="按环比纳税额排序" value="chainTax" />
-                <el-option label="按环比增长排序" value="chainInc" />
-                <el-option label="按环比增加20%的企业名单" value="chainInc20" />
-                <el-option label="按环比减少20%的企业名单" value="chainDec20" />
-              </el-select>
-            </el-form-item>
-          </el-form>
-          <el-table :data="businessSumTaxData" style="width: 100%" id="businessSumTaxData-table">
-            <el-table-column prop="businessName" label="企业名称" width="260"/>
-            <el-table-column prop="chainTax" label="纳税总额环比" width="380"/>
-            <el-table-column prop="dtTax" label="纳税月" width="260"/>
-          </el-table>
-          <el-pagination
-            small
-            layout="prev, pager, next"
-            :total="50"
-          />
-        </div>
-      </el-col>
-    </el-row>
+    <div class="content">
+      <el-table :data="tableData" style="width: 100%" id="parkTypeSumTaxData-table">
+        <el-table-column prop="date" label="功能区" width="260"/>
+        <el-table-column prop="name" label="功能区" width="260"/>
+        <el-table-column prop="address" label="功能区" width="130"/>
+      </el-table>
+    </div>
 
     <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogAddFile" width="500px" style="padding:0;" @close="resetUpload">
       上传文件:
@@ -133,18 +62,7 @@
         searchForm: {
           searchDt: '',
           uploadDt: '',
-          businessDt: '',
-          taxType: 'add',
-          houseName: '',
-          taxSort: 'monthTax',
         },
-        taxCount: 0,
-        count: 18512,
-        type: 'type',
-        businessTypeList: [],
-        parkTypeSumTaxData: [],
-        houseSumTaxData: [],
-        businessSumTaxData: [],
         tableData: []
       }
     },
@@ -168,21 +86,8 @@
       }]
     },
     created() {
-      this.getBusinessTypeList();
     },
     methods: {
-      getBusinessTypeList() {
-        let _this = this;
-        _this.axios.post('taxation/getBusinessTypeList').then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.businessTypeList = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
       searchTaxation() {
         this.getTaxation();
       },
@@ -190,9 +95,6 @@
       getTaxation() {
         let _this = this;
         _this.getTaxCount();
-        _this.getParkTypeSumTaxData();
-        _this.getHouseSumTaxData();
-        _this.getBusinessSumTaxData();
       },
 
       getTaxCount() {
@@ -210,63 +112,6 @@
             _this.$message.error(res.data.data.msg)
           }
         })
-      },
-
-      getParkTypeSumTaxData() {
-        let _this = this;
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-        _this.axios.post('taxation/getParkTypeSumTaxData', _this.searchForm, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.parkTypeSumTaxData = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
-      getHouseSumTaxData() {
-        let _this = this;
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-        _this.axios.post('taxation/getHouseSumTaxData', _this.searchForm, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.houseSumTaxData = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
-      getBusinessSumTaxData() {
-        let _this = this;
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-        _this.axios.post('taxation/getBusinessSumTaxData', _this.searchForm, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-            _this.businessSumTaxData = res.data.data;
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
-      },
-
-      clearTaxation() {
-        let _this = this;
-        _this.searchForm.searchDt = '';
-        _this.searchForm.taxType = 'add';
       },
 
       uploadTaxation() {
@@ -340,13 +185,6 @@
         var ws1 = XLSX.utils.table_to_sheet(document.querySelector('#parkTypeSumTaxData-table'));
         XLSX.utils.book_append_sheet(workbook, ws1, "功能区各高精尖行业纳税总额");
 
-        /* convert table 'table2' to worksheet named "Sheet2" */
-        var ws2 = XLSX.utils.table_to_sheet(document.querySelector('#houseSumTaxData-table'));
-        XLSX.utils.book_append_sheet(workbook, ws2, "各商务楼宇月度纳税总额");
-
-        var ws3 = XLSX.utils.table_to_sheet(document.querySelector('#businessSumTaxData-table'));
-        XLSX.utils.book_append_sheet(workbook, ws3, "企业月度纳税总额");
-
         /* get binary string as output */
         var wbOut = XLSX.write(workbook, {
           bookType: "xlsx",
@@ -362,24 +200,6 @@
           if (typeof console !== "undefined") console.log(e, wbOut);
         }
         return wbOut;
-      },
-
-      doTaxation() {
-        let requestConfig = {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-        }
-
-        let _this = this;
-        let dtTax = _this.searchForm.searchDt;
-        _this.axios.post('taxation/doTaxation?dtTax='+dtTax, requestConfig).then((res) => {
-          if (res.status === 200) {
-            console.log("res===", res);
-          } else {
-            _this.$message.error(res.data.data.msg)
-          }
-        })
       },
 
     }
