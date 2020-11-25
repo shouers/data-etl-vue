@@ -7,9 +7,8 @@
       </el-form-item>
       <el-form-item>
         <el-select v-model="searchForm.taxType" placeholder="选择导入税种">
-          <el-option label="不限" value="0" />
-          <el-option label="增值税" value="1" />
-          <el-option label="所得税" value="2" />
+          <el-option label="增值税" value="add" />
+          <el-option label="所得税" value="income" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -135,7 +134,7 @@
           searchDt: '',
           uploadDt: '',
           businessDt: '',
-          taxType: '0',
+          taxType: 'add',
           houseName: '',
           taxSort: 'monthTax',
         },
@@ -267,7 +266,7 @@
       clearTaxation() {
         let _this = this;
         _this.searchForm.searchDt = '';
-        _this.searchForm.taxType = '0';
+        _this.searchForm.taxType = 'add';
       },
 
       uploadTaxation() {
