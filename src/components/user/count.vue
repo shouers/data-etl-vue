@@ -14,37 +14,37 @@
       </el-form-item>
     </el-form>
     <el-row :gutter="20" class="taxContent">
-      <el-col :span="10">
+      <el-col :span="12">
         <div class="content" style="margin-bottom: 10px;">
           <p class="title">全区月度收入总额</p>
-          <p style="color: red;text-align: center;">
+          <p style="color: red;text-align: center; padding: 0; line-height: 20px;">
             <span style="font-size: 32px;">{{ incomeCount }}</span>万元
           </p>
         </div>
         <div class="content" style="margin-bottom: 10px;">
           <p class="title">全区月度利润总额</p>
-          <p style="color: red;text-align: center;">
+          <p style="color: red;text-align: center; padding: 0; line-height: 20px;">
             <span style="font-size: 32px;">{{ profitCount }}</span>万元
           </p>
         </div>
         <div class="content">
           <p class="title">各高精尖产业月度收入及利润总额</p>
           <el-table :data="typeSumIncProData" style="width: 100%" id="typeSumIncProData-table">
-            <el-table-column prop="businessType" label="产业区" width="130"/>
-            <el-table-column prop="sumIncome" label="收入总额" width="130"/>
-            <el-table-column prop="sumProfit" label="利润总额" width="130"/>
+            <el-table-column prop="businessType" label="产业区" width="180"/>
+            <el-table-column prop="sumIncome" label="收入总额" width="140"/>
+            <el-table-column prop="sumProfit" label="利润总额" width="140"/>
             <el-table-column prop="dtCount" label="月份" width="130"/>
           </el-table>
         </div>
       </el-col>
 
-      <el-col :span="14">
-        <div class="content">
+      <el-col :span="12">
+        <div class="content1">
           <p class="title">各功能区月度收入及利润总额</p>
           <el-table :data="parkSumIncProData" style="width: 100%" id="parkSumIncProData-table">
-            <el-table-column prop="businessPark" label="功能区" width="160"/>
-            <el-table-column prop="sumIncome" label="收入总额" width="160"/>
-            <el-table-column prop="sumProfit" label="利润总额" width="160"/>
+            <el-table-column prop="businessPark" label="功能区" width="180"/>
+            <el-table-column prop="sumIncome" label="收入总额" width="150"/>
+            <el-table-column prop="sumProfit" label="利润总额" width="150"/>
             <el-table-column prop="dtCount" label="月份" width="130"/>
           </el-table>
           <el-pagination
@@ -55,7 +55,7 @@
         </div>
       </el-col>
 
-      <el-col :span="8">
+      <el-col :span="12">
         <div class="content" style="position: relative;">
           <p class="title">企业月度企业收入/利润总额</p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -79,9 +79,10 @@
             </el-form-item>
           </el-form>
           <el-table :data="businessSumIncProData" style="width: 100%" id="businessSumIncProData-table">
-            <el-table-column prop="businessName" label="企业名称" width="130"/>
+            <el-table-column prop="businessName" label="企业名称" width="160"/>
             <el-table-column prop="chainIncome" label="环比收入变化" width="160"/>
             <el-table-column prop="chainProfit" label="环比利润变化" width="160"/>
+            <el-table-column prop="dtCount" label="月份" width="130"/>
           </el-table>
           <el-pagination
             small
@@ -91,7 +92,7 @@
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :span="12">
         <div class="content">
           <p class="title">各楼宇月度收入总额</p>
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -100,10 +101,10 @@
             </el-form-item>
           </el-form>
           <el-table :data="houseSumIncProData" style="width: 100%" id="houseSumIncProData-table">
-            <el-table-column prop="businessHouse" label="企业所属楼宇" width="110"/>
-            <el-table-column prop="sumIncome" label="收入总额" width="90"/>
-            <el-table-column prop="sumProfit" label="利润总额" width="90"/>
-            <el-table-column prop="dtCount" label="月份" width="90"/>
+            <el-table-column prop="businessHouse" label="企业所属楼宇" width="180"/>
+            <el-table-column prop="sumIncome" label="收入总额" width="150"/>
+            <el-table-column prop="sumProfit" label="利润总额" width="150"/>
+            <el-table-column prop="dtCount" label="月份" width="130"/>
           </el-table>
           <el-pagination
             small
@@ -432,21 +433,28 @@
 </script>
 
 <style scoped>
-  .taxation  .taxContent  .content{
+  .count  .taxContent  .content{
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
+    line-height: 80px;
   }
-  .taxation  .taxContent  .content .title{
-    border-left: 5px solid #ccc;
-    padding-left: 10px;
-    margin: 0px;
+  .count  .taxContent  .content1{
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    line-height: 80px;
+    height: 778px;
   }
-  .taxation  .taxContent .form_right {
+  .count  .taxContent  .content .title{
+    margin-top: 30px;
+    line-height: 50px;
+  }
+  .count  .taxContent .form_right {
     position: absolute;
     left: 100px;
   }
-  .taxation  .taxContent .el-form--inline .el-form-item {
+  .count  .taxContent .el-form--inline .el-form-item {
     margin-bottom: 5px;
   }
 </style>
