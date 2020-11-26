@@ -14,9 +14,13 @@
 
     <div class="content">
       <el-table :data="tableData" style="width: 100%" id="parkTypeSumTaxData-table">
-        <el-table-column prop="date" label="功能区" width="260"/>
-        <el-table-column prop="name" label="功能区" width="260"/>
-        <el-table-column prop="address" label="功能区" width="130"/>
+        <el-table-column prop="businessName" label="企业名称" width="180"/>
+        <el-table-column prop="businessCode" label="企业统一社会信用代码" width="260"/>
+        <el-table-column prop="businessPark" label="企业所属功能区" width="170"/>
+        <el-table-column prop="businessHouse" label="企业所属楼宇" width="170"/>
+        <el-table-column prop="businessType" label="企业高精尖产业类别" width="170"/>
+        <el-table-column prop="creator" label="创建人" width="150"/>
+        <el-table-column prop="createTime" label="创建时间" width="160"/>
       </el-table>
     </div>
 
@@ -86,28 +90,24 @@
       }]
     },
     created() {
+      this.getTaxationData();
     },
     methods: {
       searchTaxation() {
-        this.getTaxation();
+        this.getTaxationData();
       },
 
-      getTaxation() {
-        let _this = this;
-        _this.getTaxCount();
-      },
-
-      getTaxCount() {
+      getTaxationData() {
         let _this = this;
         let requestConfig = {
           headers: {
             'Content-Type': 'application/json'
           },
         }
-        _this.axios.post('taxation/getTaxCount', _this.searchForm, requestConfig).then((res) => {
+        _this.axios.post('taxation/getTaxationData', _this.searchForm, requestConfig).then((res) => {
           if (res.status === 200) {
             console.log("res===", res);
-            _this.taxCount = res.data.data;
+            _this.tableData = res.data.data;
           } else {
             _this.$message.error(res.data.data.msg)
           }
@@ -183,7 +183,7 @@
 
         /* convert table 'table1' to worksheet named "Sheet1" */
         var ws1 = XLSX.utils.table_to_sheet(document.querySelector('#parkTypeSumTaxData-table'));
-        XLSX.utils.book_append_sheet(workbook, ws1, "功能区各高精尖行业纳税总额");
+        XLSX.utils.book_append_sheet(workbook, ws1, "税务数据");
 
         /* get binary string as output */
         var wbOut = XLSX.write(workbook, {

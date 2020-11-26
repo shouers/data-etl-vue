@@ -14,9 +14,13 @@
 
     <div class="content">
       <el-table :data="tableData" style="width: 100%" id="typeSumIncProData-table">
-        <el-table-column prop="date" label="功能区" width="260"/>
-        <el-table-column prop="name" label="功能区" width="260"/>
-        <el-table-column prop="address" label="功能区" width="130"/>
+        <el-table-column prop="businessName" label="企业名称" width="180"/>
+        <el-table-column prop="businessCode" label="企业统一社会信用代码" width="260"/>
+        <el-table-column prop="businessPark" label="企业所属功能区" width="170"/>
+        <el-table-column prop="businessHouse" label="企业所属楼宇" width="170"/>
+        <el-table-column prop="businessType" label="企业高精尖产业类别" width="170"/>
+        <el-table-column prop="creator" label="创建人" width="150"/>
+        <el-table-column prop="createTime" label="创建时间" width="160"/>
       </el-table>
     </div>
 
@@ -86,29 +90,24 @@
       }]
     },
     created() {
+      this.getCountData();
     },
     methods: {
       searchCount() {
-        this.getCount();
+        this.getCountData();
       },
 
-      getCount() {
-        let _this = this;
-        _this.getIncomeProfitCount();
-      },
-
-      getIncomeProfitCount() {
+      getCountData() {
         let _this = this;
         let requestConfig = {
           headers: {
             'Content-Type': 'application/json'
           },
         }
-        _this.axios.post('count/getIncomeProfitCount', _this.searchForm, requestConfig).then((res) => {
+        _this.axios.post('count/getCountData', _this.searchForm, requestConfig).then((res) => {
           if (res.status === 200) {
             console.log("res===", res);
-            _this.incomeCount = res.data.data[0];
-            _this.profitCount = res.data.data[1];
+            _this.tableData = res.data.data;
           } else {
             _this.$message.error(res.data.data.msg)
           }
@@ -184,7 +183,7 @@
 
         /* convert table 'table1' to worksheet named "Sheet1" */
         var ws1 = XLSX.utils.table_to_sheet(document.querySelector('#typeSumIncProData-table'));
-        XLSX.utils.book_append_sheet(workbook, ws1, "各高精尖产业月度收入及利润总额");
+        XLSX.utils.book_append_sheet(workbook, ws1, "统计数据");
 
         /* get binary string as output */
         var wbOut = XLSX.write(workbook, {
