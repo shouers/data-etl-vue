@@ -9,6 +9,7 @@
         <el-button type="primary" size="medium" @click="searchCount">查询</el-button>
         <el-button type="primary" size="medium" @click="uploadCount">导入</el-button>
         <el-button type="primary" size="medium" @click="downloadCount">导出</el-button>
+        <el-button type="primary" size="medium" @click="addExecutorPlan">添加执行脚本</el-button>
       </el-form-item>
     </el-form>
 
@@ -44,6 +45,30 @@
         <el-button type="primary" @click="submitAddFile()">确定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="添加执行脚本" :visible.sync="dialogAddPlan" width="1200px">
+      <el-form :model="dataForm" label-width="210px">
+        <el-form-item label="执行纳税类型" prop="planType">
+          <el-input v-model="dataForm.planType" placeholder="执行纳税类型"></el-input>
+        </el-form-item>
+        <el-form-item label="执行纳税时间" prop="planDt">
+          <el-input v-model="dataForm.planDt" placeholder="执行纳税时间"></el-input>
+        </el-form-item>
+        <el-form-item label="执行纳税名称" prop="planName">
+          <el-input v-model="dataForm.planName" placeholder="执行纳税名称"></el-input>
+        </el-form-item>
+        <el-form-item label="执行纳税编码" prop="planCode">
+          <el-input v-model="dataForm.planCode" placeholder="执行纳税编码"></el-input>
+        </el-form-item>
+        <el-form-item label="执行的SQL" prop="planSql">
+          <el-input type="textarea"  v-model="dataForm.planSql" placeholder="执行的SQL"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddPlan = false">取 消</el-button>
+        <el-button type="primary" @click="saveAddPlan">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -55,6 +80,7 @@
     data() {
       return {
         dialogAddFile: false,
+        dialogAddPlan: false,
         dialogStatus: '',
         titleMap: {
           uploadTaxation: "上传统计数据"
@@ -67,7 +93,14 @@
           searchDt: '',
           uploadDt: '',
         },
-        tableData: []
+        tableData: [],
+        dataForm: {
+          planName: '',
+          planCode: '',
+          planSql: '',
+          planType: '',
+          planDt: '',
+        },
       }
     },
     mounted() {
@@ -93,6 +126,23 @@
       this.getCountData();
     },
     methods: {
+      saveAddPlan() {
+        let _this = this;
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }
+        _this.axios.post('executorPlan/insertExecutorPlan', _this.dataForm, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
+      },
+
       searchCount() {
         this.getCountData();
       },
@@ -118,6 +168,11 @@
         let _this = this;
         _this.dialogAddFile = true;
         _this.dialogStatus = "uploadCount";
+      },
+
+      addExecutorPlan() {
+        let _this = this;
+        _this.dialogAddPlan = true;
       },
 
       beforeUpload(file){
