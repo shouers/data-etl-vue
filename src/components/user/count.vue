@@ -8,21 +8,39 @@
       <el-form-item>
         <el-button type="primary" size="medium" @click="searchCount">查询</el-button>
         <el-button type="primary" size="medium" @click="uploadCount">导入</el-button>
-        <el-button type="primary" size="medium" @click="downloadCount">导出</el-button>
-        <el-button type="primary" size="medium" @click="addExecutorPlan">添加执行脚本</el-button>
+        <!--<el-button type="primary" size="medium" @click="queryBusinessData">查看导入数据</el-button>-->
+        <!--<el-button type="primary" size="medium" @click="downloadCount">导出</el-button>-->
+        <el-button type="primary" size="medium" @click="addExecutorPlan">添加执行计划</el-button>
       </el-form-item>
     </el-form>
 
     <div class="content">
-      <el-table :data="tableData" style="width: 100%" id="typeSumIncProData-table">
+      <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="businessName" label="企业名称" width="180"/>
         <el-table-column prop="businessCode" label="企业统一社会信用代码" width="260"/>
         <el-table-column prop="businessPark" label="企业所属功能区" width="170"/>
         <el-table-column prop="businessHouse" label="企业所属楼宇" width="170"/>
         <el-table-column prop="businessType" label="企业高精尖产业类别" width="170"/>
+        <el-table-column prop="dt" label="导入时间" width="170"/>
         <el-table-column prop="creator" label="创建人" width="150"/>
         <el-table-column prop="createTime" label="创建时间" width="160"/>
       </el-table>
+
+      <!--<el-table :data="planData" style="width: 100%" id="typeSumIncProData-table">
+        <el-table-column prop="planName" label="执行名称" width="180"/>
+        &lt;!&ndash;<el-table-column prop="planCode" label="执行编码" width="180"/>&ndash;&gt;
+        <el-table-column prop="planSql" label="执行计划" width="810"/>
+        <el-table-column prop="planType" label="执行类型(税务统计)" width="120"/>
+        <el-table-column prop="planDt" label="执行日期" width="90"/>
+        &lt;!&ndash;<el-table-column prop="creator" label="创建人" width="120"/>
+        <el-table-column prop="createTime" label="创建时间" width="160"/>&ndash;&gt;
+
+        <el-table-column label="操作" width="110" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" size="medium" @click="handelEdit(scope.$index, scope.row)">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>-->
     </div>
 
     <el-dialog :title="titleMap[dialogStatus]" :visible.sync="dialogAddFile" width="500px" style="padding:0;" @close="resetUpload">
@@ -46,22 +64,35 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="添加执行脚本" :visible.sync="dialogAddPlan" width="1200px">
-      <el-form :model="dataForm" label-width="210px">
-        <el-form-item label="执行纳税类型" prop="planType">
-          <el-input v-model="dataForm.planType" placeholder="执行纳税类型"></el-input>
+    <el-dialog title="查看导入数据" :visible.sync="dialogAddBusiness" width="1200px">
+      <el-table :data="tableData" style="width: 100%">
+        <el-table-column prop="businessName" label="企业名称" width="180"/>
+        <el-table-column prop="businessCode" label="企业统一社会信用代码" width="260"/>
+        <el-table-column prop="businessPark" label="企业所属功能区" width="170"/>
+        <el-table-column prop="businessHouse" label="企业所属楼宇" width="170"/>
+        <el-table-column prop="businessType" label="企业高精尖产业类别" width="170"/>
+        <el-table-column prop="dt" label="导入时间" width="170"/>
+        <el-table-column prop="creator" label="创建人" width="150"/>
+        <el-table-column prop="createTime" label="创建时间" width="160"/>
+      </el-table>
+    </el-dialog>
+
+    <el-dialog title="添加执行计划" :visible.sync="dialogAddPlan" width="900px">
+      <el-form :model="dataForm" label-width="220px">
+        <el-form-item label="纳税类型" prop="planType">
+          <el-input v-model="dataForm.planType" placeholder="请输入纳税类型"></el-input>
         </el-form-item>
-        <el-form-item label="执行纳税时间" prop="planDt">
-          <el-input v-model="dataForm.planDt" placeholder="执行纳税时间"></el-input>
+        <el-form-item label="纳税时间" prop="planDt">
+          <el-input v-model="dataForm.planDt" placeholder="请输入纳税时间"></el-input>
         </el-form-item>
-        <el-form-item label="执行纳税名称" prop="planName">
-          <el-input v-model="dataForm.planName" placeholder="执行纳税名称"></el-input>
+        <!--<el-form-item label="纳税名称" prop="planName">
+          <el-input v-model="dataForm.planName" placeholder="请输入纳税名称"></el-input>
         </el-form-item>
-        <el-form-item label="执行纳税编码" prop="planCode">
-          <el-input v-model="dataForm.planCode" placeholder="执行纳税编码"></el-input>
-        </el-form-item>
-        <el-form-item label="执行的SQL" prop="planSql">
-          <el-input type="textarea"  v-model="dataForm.planSql" placeholder="执行的SQL"></el-input>
+        <el-form-item label="纳税编码" prop="planCode">
+          <el-input v-model="dataForm.planCode" placeholder="请输入纳税编码"></el-input>
+        </el-form-item>-->
+        <el-form-item label="执行计划" prop="planSql">
+          <el-input type="textarea"  v-model="dataForm.planSql" placeholder="请输入执行计划"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -81,6 +112,7 @@
       return {
         dialogAddFile: false,
         dialogAddPlan: false,
+        dialogAddBusiness: false,
         dialogStatus: '',
         titleMap: {
           uploadTaxation: "上传统计数据"
@@ -92,8 +124,10 @@
         searchForm: {
           searchDt: '',
           uploadDt: '',
+          planType: 'count',
         },
         tableData: [],
+        planData: [],
         dataForm: {
           planName: '',
           planCode: '',
@@ -123,9 +157,26 @@
       }]
     },
     created() {
-      this.getCountData();
+      this.getNowDate();
+      this.searchCount();
     },
     methods: {
+      getNowDate() {
+        let _this = this;
+        let date = new Date();
+        let y = date.getFullYear();
+        let m = date.getMonth() + 1;
+        // let d = date.getDate();
+        // let H = Da.getHours();
+        // let mm = Da.getMinutes();
+        // let s = d.getSeconds()
+        m = m < 10 ? "0" + m : m;
+        // d = d < 10 ? "0" + d : d;
+        // H = H < 10 ? "0" + H : H;
+        // return y + "-" + m + "-" + d + " " + H + ":" + mm+":"+s;
+        _this.searchForm.searchDt = y + "-" + m;
+      },
+
       saveAddPlan() {
         let _this = this;
         let requestConfig = {
@@ -136,15 +187,46 @@
         _this.axios.post('executorPlan/insertExecutorPlan', _this.dataForm, requestConfig).then((res) => {
           if (res.status === 200) {
             console.log("res===", res);
-
+            _this.dialogAddPlan = false;
+            _this.$message.success("保存执行计划信息成功");
+            _this.getPlanData();
           } else {
             _this.$message.error(res.data.data.msg)
           }
         })
       },
 
+      handelEdit(index, row) {
+        let _this = this;
+        _this.dataForm = row;
+        _this.dialogAddPlan = true;
+      },
+
       searchCount() {
         this.getCountData();
+      },
+
+      getPlanData() {
+        let _this = this;
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }
+        _this.axios.post('count/getPlanData', _this.searchForm, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+            _this.planData = res.data.data;
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
+      },
+
+      queryBusinessData() {
+        let _this = this;
+        _this.dialogAddBusiness = true;
+        _this.getCountData();
       },
 
       getCountData() {
@@ -173,6 +255,7 @@
       addExecutorPlan() {
         let _this = this;
         _this.dialogAddPlan = true;
+        _this.dataForm = {};
       },
 
       beforeUpload(file){
