@@ -10,7 +10,7 @@
         <el-button type="primary" size="medium" @click="uploadTaxation">导入</el-button>
         <!--<el-button type="primary" size="medium" @click="queryBusinessData">查看导入数据</el-button>-->
         <!--<el-button type="primary" size="medium" @click="downloadTaxation">导出</el-button>-->
-        <el-button type="primary" size="medium" @click="addExecutorPlan">添加执行计划</el-button>
+        <el-button v-show="isShow" style="background-color: ghostwhite" size="medium" @click="addExecutorPlan">添加执行计划</el-button>
       </el-form-item>
     </el-form>
 
@@ -109,6 +109,8 @@
   export default {
     data() {
       return {
+        seen: false,
+        isShow: true,
         dialogAddFile: false,
         dialogAddPlan: false,
         dialogAddBusiness: false,
@@ -157,7 +159,7 @@
     },
     created() {
       this.getNowDate();
-      this.searchTaxation();
+      this.getInitTaxationData();
     },
     methods: {
       getNowDate() {
@@ -228,6 +230,23 @@
         _this.getTaxationData();
       },
 
+      getInitTaxationData() {
+        let _this = this;
+        let requestConfig = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }
+        _this.axios.post('taxation/getInitTaxationData', _this.searchForm, requestConfig).then((res) => {
+          if (res.status === 200) {
+            console.log("res===", res);
+            _this.tableData = res.data.data;
+          } else {
+            _this.$message.error(res.data.data.msg)
+          }
+        })
+      },
+
       getTaxationData() {
         let _this = this;
         let requestConfig = {
@@ -249,6 +268,13 @@
         let _this = this;
         _this.dialogAddFile = true;
         _this.dialogStatus = "uploadTaxation";
+      },
+
+      mouseEnter() {
+        this.isShow = true;
+      },
+      mouseLeave() {
+        this.isShow = false;
       },
 
       addExecutorPlan() {
